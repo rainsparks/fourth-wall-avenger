@@ -1,5 +1,3 @@
-; note: scores.txt file must already exist in order to save and view scores
-
 .model small 
 .stack 1024 
 .data 
@@ -38,11 +36,10 @@
 				db 10," "
 				db 10," "
 				db 10,"    POWER-UPS: The different colors of the bricks denote different power-ups."
-				db 10,"                                              "
 				db 10,"               BLUE-slower"
 				db 10,"               RED-faster"
-				db 10,"               "
-				db 10,13,"                $"
+				db 10,"               YELLOW-short buffle"
+				db 10,13,"               LIGHT MAGENTA-long buffle $"
 
 	choice   	db ?
 	gameover 	db 10," "
@@ -92,11 +89,11 @@
 			   db 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
 			   db 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
 
-	bricks     db 		1, 8, 2, 9, 4, 10, 5, 12, 6, 14   ;colors of brick
-			   db 		1, 8, 2, 9, 4, 10, 5, 12, 6, 14
-			   db 		1, 8, 2, 9, 4, 10, 5, 12, 6, 14 
-			   db 		1, 8, 2, 9, 4, 10, 5, 12, 6, 14 
-			   db 		1, 8, 2, 9, 4, 10, 5, 12, 6, 14 
+	bricks     db 		4, 12, 1, 9, 2, 10, 5, 13, 6, 14 
+			   db 		4, 12, 1, 9, 2, 10, 5, 13, 6, 14 
+			   db 		4, 12, 1, 9, 2, 10, 5, 13, 6, 14 
+			   db 		4, 12, 1, 9, 2, 10, 5, 13, 6, 14 
+			   db 		4, 12, 1, 9, 2, 10, 5, 13, 6, 14 
 	x		   db ?
 	y		   db ?
 	ball1      db      15, 15, 15, 15         
@@ -238,7 +235,7 @@ openError:
 
 drawBrick   proc    near 
     push    di 
-    mov     ah, al 
+    mov     ah, AL 
     mov     bx, 10			; space of bricks
 
 	drawBrick_loop1: 
@@ -445,6 +442,12 @@ hitBrick  proc    near        ;function to check if ball hit brick
 		cmp 	dl, 1
 		je		@slower
 		
+		cmp 	dl, 13
+		je		@longerBuffle
+		
+		cmp		dl, 14
+		je		@bridgeShorterBuffle
+		
 		cmp 	dl, 10
 		je		@normal
 		
@@ -486,6 +489,16 @@ hitBrick  proc    near        ;function to check if ball hit brick
 			mov cx, -1
 			mov step_y, cx
 			mov cx, temp
+			jmp @resume
+		@longerBuffle:
+			mov temp, cx
+			mov cx, 100
+			mov buf_len, cx
+			mov cx, temp
+			mov temp, ax
+			mov ax, 15
+			call drawBuffle
+			mov ax, temp
 			jmp @resume
 		@shorterBuffle:
 			mov temp, cx
@@ -910,6 +923,7 @@ print_name endp
 		;call displayFile 
 		je @jump1
 		
+
 		cmp al, 6
 		mov     ax, 4c00h       ;call dos to exit 
 		int     21h 
@@ -1036,7 +1050,8 @@ print_name endp
 		int 21h
 		jmp @thanksmessage
 	@instructions:
-	             
+	    ;mov ax, 3       
+		;int 10H           
 		mov ah, 1          ;make cursor disappear
 		mov cx, 2020h
 		int 10h
