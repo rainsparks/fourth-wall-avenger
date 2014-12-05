@@ -336,8 +336,6 @@ public class Disassembler {
         			System.out.println("   char[] " + variable + " = \""+ value +"\";");
         			outputStream.println("   char[] " + variable + " = \""+ value +"\";");
         		}
-        		
         	}
-        
 	}
 }
