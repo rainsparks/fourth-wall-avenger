@@ -24,7 +24,8 @@ public class Disassembler {
 		System.out.println("Enter the filename:");
 		filenamein = fname.nextLine();
 		filenameout = filenamein.replace(".asm", ".c");
-
+		
+	try{
 		outputStream = new PrintWriter(new FileOutputStream(filenameout));
 		
 		System.out.println("Opening file " + filenamein + "...");
@@ -63,6 +64,9 @@ public class Disassembler {
 	        
 	        System.out.println(header);
 	        System.out.println(main);
+	        
+	        outputStream.println(header);
+	        outputStream.println(main);
 	        
 	        //VARIABLES
 	        for(int i=0; i<stringArr.length; i++){
@@ -105,18 +109,25 @@ public class Disassembler {
 	        	
 	        	if(stringArr[i].trim().contains("mov ax, 4c00h")||stringArr[i].trim().contains("mov ax, 4ch")){
 	        		System.out.println("\n   return 0;");
+	        		outputStream.println("\n   return 0;");
 	        	}
 	        }
 	        
-	        System.out.println(endmain);	
+	        System.out.println(endmain);
+	        outputStream.println(endmain);
 	        inputStream.close();
 		}
 	
 		catch(Exception e){
 			System.err.println("Error reading from " + filenamein + ".");
 		}
+		
+		outputStream.close();
+	}
 	
-	
+	catch(Exception e){
+		System.err.println("Error  writing to " + filenameout + ".");
+	}
 		
 }
 	
@@ -132,6 +143,7 @@ public class Disassembler {
 		
 		//System.out.println("   printf(%d, "+ printChar + ");\n" );	
 		System.out.println("   printf( \"%c\", "+ printChar + ");" );
+		outputStream.println("   printf( \"%c\", "+ printChar + ");" );
 	}
 	
 	public static void printString(String[] stringArr, int i){
@@ -143,6 +155,7 @@ public class Disassembler {
 		}
 		
 		System.out.println("   printf( \"%s\", "+ printString + ");" );
+		outputStream.println("   printf( \"%s\", "+ printString + ");" );
 	}
 	
 	
@@ -157,12 +170,16 @@ public class Disassembler {
 		
 		if(stringArr[i+1].contains("jl")){
 			System.out.println("   if(" + compare1 + " < "  + compare2 + "){");
+			outputStream.println("   if(" + compare1 + " < "  + compare2 + "){");
+			
 			String[] word = stringArr[i+1].split(" ");
 			label = word[1];
 		}
 		
 		else if(stringArr[i+1].contains("je")){
 			System.out.println("   if(" + compare1 + " == "  + compare2 + "){");
+			outputStream.println("   if(" + compare1 + " == "  + compare2 + "){");
+			
 			String[] word = stringArr[i+1].split(" ");
 			label = word[1];
 			
@@ -170,6 +187,8 @@ public class Disassembler {
 		
 		else if(stringArr[i+1].contains("jg")){
 			System.out.println("   if(" + compare1 + " > "  + compare2 + "){");
+			outputStream.println("   if(" + compare1 + " > "  + compare2 + "){");
+			
 			String[] word = stringArr[i+1].split(" ");
 			label = word[1];
 			
@@ -186,6 +205,7 @@ public class Disassembler {
 				}
 			}			
 			System.out.println();
+			outputStream.println();
 		}
 		//System.out.println("   }");
 	}
@@ -204,6 +224,7 @@ public class Disassembler {
 		}
 		else{
 			System.out.println("   "  + add1 + " = " + add1 + " + " + add2 + ";");
+			outputStream.println("   "  + add1 + " = " + add1 + " + " + add2 + ";");
 		}
 	}
 	
@@ -221,6 +242,7 @@ public class Disassembler {
 		}
 		else{
 			System.out.println("   "  + sub1 + " = " + sub1 + " - " + sub2 + ";");
+			outputStream.println("   "  + sub1 + " = " + sub1 + " - " + sub2 + ";");
 		}
 	}
 	
@@ -231,12 +253,14 @@ public class Disassembler {
 			String[] words = stringArr[i].split(" ");
 			var = words[1];
 			System.out.println("   " + var + "++;");
+			outputStream.println("   " + var + "++;");
 		}
 		
 		else if(stringArr[i].contains("dec")){
 			String[] words = stringArr[i].split(" ");
 			var = words[1];
 			System.out.println("   " + var + "--;");
+			outputStream.println("   " + var + "--;");
 		}
 	
 	}
@@ -259,6 +283,7 @@ public class Disassembler {
 		}
 		
 		System.out.println("\n   scanf( \"%c\" " + input +");");
+		outputStream.println("\n   scanf( \"%c\" " + input +");");
 	}
 	
 	public static void variables(String[] stringArr, int startOfMain, int i){
@@ -297,15 +322,19 @@ public class Disassembler {
         				perLine[2].contains("4")||perLine[2].contains("5")||perLine[2].contains("6")||perLine[2].contains("7")
         				||perLine[2].contains("8")||perLine[2].contains("9")){
         			System.out.println("   int " + variable + " = "+ value +";");
+        			outputStream.println("   int " + variable + " = "+ value +";");
         		}
         		else if(perLine[2].length()==1 && perLine[2].equalsIgnoreCase("a")){
         			System.out.println("   char " + variable + " = "+ value +";");
+        			outputStream.println("   char " + variable + " = "+ value +";");
         		}
         		else if(perLine[2].equals("?")){
         			System.out.println("   int " + variable + ";");
+        			outputStream.println("   int " + variable + ";");
         		}	
         		else{
         			System.out.println("   char[] " + variable + " = \""+ value +"\";");
+        			outputStream.println("   char[] " + variable + " = \""+ value +"\";");
         		}
         		
         	}
