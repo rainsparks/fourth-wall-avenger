@@ -471,3 +471,4 @@ public class AssemblerPrinting {
 		operationsArray = operations.toArray(new String[0]);
 	}
 }
+
