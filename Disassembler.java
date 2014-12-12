@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,25 +14,32 @@ public class Disassembler {
 	static PrintWriter outputStream = null;
 	
 	public static void main(String[] args) throws FileNotFoundException {
+		String filename, newfilename, filenameout ="";
 		
 		String header = "#include <stdio.h>";
 		String main = "int main(){";
 		String endmain = "}";
 		
-		String filenamein, filenameout ="";
+		System.out.println("Enter filename\n(with .c extension including path): ");
+		Scanner scanner = new Scanner(System.in);
+		filename = scanner.nextLine();
+		if(filename.contains("/") && filename.contains(".asm")){
+			newfilename = filename.substring(filename.lastIndexOf("/")+1,filename.indexOf(".asm"));
+		}
+		else{
+			newfilename = filename.substring(0, filename.indexOf(".asm"));
+		}
 		
-		Scanner fname = new Scanner(System.in);
-		System.out.println("Enter the filename:");
-		filenamein = fname.nextLine();
-		filenameout = filenamein.replace(".asm", ".c");
+		System.out.println(newfilename);
+		filenameout = "AsmConverted/converted"+newfilename+".c";
 		
 	try{
 		outputStream = new PrintWriter(new FileOutputStream(filenameout));
 		
-		System.out.println("Opening file " + filenamein + "...");
+		System.out.println("Opening file " + filename + "...");
 		
 		try{
-			BufferedReader inputStream = new BufferedReader(new FileReader(filenamein));
+			BufferedReader inputStream = new BufferedReader(new FileReader(filename));
 			String str;
 			
 			//save it in an array:
@@ -119,7 +127,7 @@ public class Disassembler {
 		}
 	
 		catch(Exception e){
-			System.err.println("Error reading from " + filenamein + ".");
+			System.err.println("Error reading from " + filename + ".");
 		}
 		
 		outputStream.close();
@@ -168,6 +176,17 @@ public class Disassembler {
 		compare2 = perLine[2];
 		compare2 = compare2.replace("'", "");
 		
+		if(compare2.contains("al") || compare2.contains("ah") || compare2.contains("bl")|| compare2.contains("bh")
+				|| compare2.contains("cl") || compare2.contains("ch") || compare2.contains("dl") || compare2.contains("dh")
+				|| compare2.contains("ax") || compare2.contains("bx") || compare2.contains("cx") || compare2.contains("dx")){
+			String prev1, prev2;
+			String prev[] = stringArr[i-1].trim().split(" ");
+			prev1 = prev[1];
+			prev2 = prev[2];
+			prev2 = prev2.replace(",", "");
+			compare2 = prev2;
+			
+		}
 		if(stringArr[i+1].contains("jl")){
 			System.out.println("   if(" + compare1 + " < "  + compare2 + "){");
 			outputStream.println("   if(" + compare1 + " < "  + compare2 + "){");
@@ -336,6 +355,8 @@ public class Disassembler {
         			System.out.println("   char[] " + variable + " = \""+ value +"\";");
         			outputStream.println("   char[] " + variable + " = \""+ value +"\";");
         		}
+        		
         	}
+        
 	}
 }
